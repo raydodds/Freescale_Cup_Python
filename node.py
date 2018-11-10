@@ -18,11 +18,27 @@ class PointNode(Node):
 		self = Node(parent, left, right)
 		self.point = point
 
+    def next(self, p):
+        ret = None
+        if p[0] < self.point[0]:
+            ret = self.left
+        else:
+            ret = self.right
+        return ret
+
+
 class SegNode(Node):
 	def __init__(self, parent, line, left=None, right=None):
 		self = Node(parent, left, right)
 		self.line = line
 
+    def next(self, p):
+        ret = None
+        if self.line.above(p):
+            ret = self.left
+        else:
+            ret = self.right
+        return ret
 
 class TrapNode(Node):
 	def __init__(self, parent, trap):

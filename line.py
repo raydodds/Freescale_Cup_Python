@@ -14,7 +14,7 @@ class Line:
 		else:
 			self.start = end
 			self.end = start
-		
+
 		# y = ax-b
 		self.a = (end[1]-start[1])/(end[0]-start[0])
 
@@ -57,4 +57,10 @@ class Line:
 	def in_y(self, point):
 		return not ( self.start[1] > point[1] or self.end[1] < point[1] )
 
+    def above(self, p):
+        return det(p) > 0
+
+    def det(self, p):
+        return ((end[0] - start[0]) * (p[1] - start[1])\
+                - (end[1] - start[1]) * (p[0] - start[0]))
 
