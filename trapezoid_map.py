@@ -59,19 +59,81 @@ def handle_one(root, pt1_node, line):
 
     # Make a mini tree
     new_root = node.PointNode(line.start)
-    new_root.left = node.TrapNode(left)
+    new_root.add_left(node.TrapNode(left))
 
     x = node.PointNode(line.end)
-    x.right = nodeTrapNode(right)
-    new_root.right = x
+    x.add_right(nodeTrapNode(right))
+    new_root.add_right(x)
 
     y = node.LineNode(line)
-    y.left = node.TrapNode(top)
-    y.right = node.TrapNode(bottom)
-    x.left = y
+    y.add_left(node.TrapNode(top))
+    y.add_right(node.TrapNode(bottom))
+    x.add_left(y)
 
     if root is pt1_node:
         return new_root
     else:
         pt1_node.replace(new_root)
         return root
+
+def handle_many(root, pt1_node, pt2_node, line):
+    inbetween_traps = get_intersected_traps(root, line)
+
+    # Lefty boy
+    l_trap = inbetween_traps[0]
+
+    # Create sub trapezoids
+    left = trap.Trap(l_trap.top, l_trap.bottom, l_trap.left_pt, line.start)
+    bottom = trap.Trap(line, l_trap.bottom, line.start, l_trap.right_pt)
+    top = trap.Trap(l_trap.top, line, line.start, l_trap.right_pt)
+
+    # Set neighbors
+    left.set_neighbors(l_trap.topleft_n, top, l_trap.bottomleft_n, bottom)
+    bottom.set_neighbors(left, null, left, null)
+    top.set_neighbors(left, null, left, null)
+
+    # Neighbors of neighbors
+    if l_trap.topleft_n is not None:
+        l_trap.topleft_n.topright_n = left
+        l_trap.topleft_n.bottomright_n = left
+
+    if l_trap.bottomleft_n is not None:
+        l_trap.bottomleft_n.topright_n = left
+        l_trap.bottomleft_n.bottomright_n = left
+
+    # Set up subtree
+    new_left = node.PointNode(line.start)
+    new_split = node.LineNode(line)
+    new_left.add_left(node.TrapNode(left))
+    new_left.add_right(new_split)
+    new_split.add_left(top)
+    new_split.add_right(bottom)
+
+    # Use a tangled web of references to replace this trapezoid with the subtree
+    l_trap.gnode.replace(new_left)
+
+    for i in range(1, len(inbetween_traps) - 1):
+        curr_trap = inbetween_traps[i]
+
+
+
+
+def get_intersected_traps(root, line):
+    traps = []
+
+    s = line.start
+    e = line.end
+
+    start = root.locate_point(s).trap
+    traps.append(start)
+    curr = start
+
+    while curr is not None and (curr.right_pt is not None and e.end.x >= curr.right_pt.x):
+        if line.above(curr.right_pt):
+            curr = curr.bottomright_n
+        else:
+            curr = curr.topright_n
+        if curr is not None:
+            traps.append(curr)
+
+    return traps

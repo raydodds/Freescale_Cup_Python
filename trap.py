@@ -18,6 +18,8 @@ class Trap:
         self.bottomleft_n = None
         self.bottomright_n = None
 
+        self.gnode = None
+
 		# (x,y)
 		self.left_pt = left_pt
 		self.right_pt = right_pt
