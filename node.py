@@ -13,6 +13,13 @@ class Node(object):
 		self.left = left
 		self.right = right
 
+    def replace(replacement):
+        for p in parent:
+           if p.left is self:
+                p.left = replacement
+           elif p.right is self:
+                p.right = replacement
+
 class PointNode(Node):
 	def __init__(self, parent, point, left=None, right=None):
 		self = Node(parent, left, right)

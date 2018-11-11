@@ -10,18 +10,18 @@ def trap_map(bounding_box, lines):
     root = node.TrapNode(t)
 
     for line in lines:
-        add_line(root, line)
+        root = add_line(root, line)
 
-def add_lines(root, line):
+def add_line(root, line):
     pt1_node = locate_point(root, line.start)
     pt2_node = locate_point(root, line.end)
     pt1_trap = pt1_node.trap
     pt2_trap = pt2_node.trap
 
     if pt1_trap == pt2_trap:
-        handle_one(root, pt1_node, line)
+        return handle_one(root, pt1_node, line)
     else:
-        handle_many(root, pt1_node, pt2_node, line)
+        return handle_many(root, pt1_node, pt2_node, line)
 
 #returns trapezoid the point is located in
 def locate_point(root, p):
@@ -42,3 +42,36 @@ def handle_one(root, pt1_node, line):
     right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
     top.set_neighbors(left, right, left, right)
     bottom.set_neighbors(left, right, left, right)
+
+    # Set neighbors of neighbors. Might be incorrect.
+    if t.topleft_n is not None:
+        t.topleft_n.topright_n = left
+        t.topleft_n.bottomright_n = left
+    if t.bottomleft_n is not None:
+        t.bottomleft_n.topright_n = left
+        t.bottomleft_n.bottomright_n = left
+    if t.topright_n is not None:
+        t.topright_n.topleft_n = right
+        t.topright_n.bottomleft_n = right
+    if t.bottomright_n is not None:
+        t.bottomright_n.topleft_n = right
+        t.bottomright_n.bottomleft_n = right
+
+    # Make a mini tree
+    new_root = node.PointNode(line.start)
+    new_root.left = node.TrapNode(left)
+
+    x = node.PointNode(line.end)
+    x.right = nodeTrapNode(right)
+    new_root.right = x
+
+    y = node.LineNode(line)
+    y.left = node.TrapNode(top)
+    y.right = node.TrapNode(bottom)
+    x.left = y
+
+    if root is pt1_node:
+        return new_root
+    else:
+        pt1_node.replace(new_root)
+        return root
