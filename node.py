@@ -9,7 +9,8 @@ import line, trap
 
 class Node(object):
 	def __init__(self, parent, left=None, right=None):
-		self.parent = parent
+        self.parent = []
+		self.parent.append(parent)
 		self.left = left
 		self.right = right
 
@@ -19,6 +20,14 @@ class Node(object):
 				p.left = replacement
 			elif p.right is self:
 				p.right = replacement
+
+    def add_left(node):
+        self.left = node
+        node.parent.append(self)
+
+    def add_right(node):
+        self.right = node
+        node.parent.append(self)
 
 class PointNode(Node):
 	def __init__(self, parent, point, left=None, right=None):
@@ -51,3 +60,4 @@ class TrapNode(Node):
 	def __init__(self, parent, trap):
 		self = Node(parent)
 		self.trap = trap
+        self.trap.gnode = self

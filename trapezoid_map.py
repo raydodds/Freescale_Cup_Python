@@ -69,50 +69,112 @@ def locate_point(root, p):
 	return curr
 
 def handle_one(root, pt1_node, line):
-	t = pt1_node.trap
+    t = pt1_node.trap
 
-	left = trap.Trap(t.top, t.bottom, t.left_pt, line.start)
-	right = trap.Trap(t.top, t.bottom, line.end, t.right_pt)
-	top = trap.Trap(t.top, line, line.start, line.end)
-	bottom = trap.Trap(line, t.bottom, line.start, line.end)
+    left = trap.Trap(t.top, t.bottom, t.left_pt, line.start)
+    right = trap.Trap(t.top, t.bottom, line.end, t.right_pt)
+    top = trap.Trap(t.top, line, line.start, line.end)
+    bottom = trap.Trap(line, t.bottom, line.start, line.end)
 
-	left.set_neighbors(left.topleft_n, top, left.bottomleft_n, bottom)
-	right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
-	top.set_neighbors(left, right, left, right)
-	bottom.set_neighbors(left, right, left, right)
+    left.set_neighbors(left.topleft_n, top, left.bottomleft_n, bottom)
+    right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
+    top.set_neighbors(left, right, left, right)
+    bottom.set_neighbors(left, right, left, right)
 
-	# Set neighbors of neighbors. Might be incorrect.
-	if t.topleft_n is not None:
-		t.topleft_n.topright_n = left
-		t.topleft_n.bottomright_n = left
-	if t.bottomleft_n is not None:
-		t.bottomleft_n.topright_n = left
-		t.bottomleft_n.bottomright_n = left
-	if t.topright_n is not None:
-		t.topright_n.topleft_n = right
-		t.topright_n.bottomleft_n = right
-	if t.bottomright_n is not None:
-		t.bottomright_n.topleft_n = right
-		t.bottomright_n.bottomleft_n = right
+    # Set neighbors of neighbors. Might be incorrect.
+    if t.topleft_n is not None:
+        t.topleft_n.topright_n = left
+        t.topleft_n.bottomright_n = left
+    if t.bottomleft_n is not None:
+        t.bottomleft_n.topright_n = left
+        t.bottomleft_n.bottomright_n = left
+    if t.topright_n is not None:
+        t.topright_n.topleft_n = right
+        t.topright_n.bottomleft_n = right
+    if t.bottomright_n is not None:
+        t.bottomright_n.topleft_n = right
+        t.bottomright_n.bottomleft_n = right
 
-	# Make a mini tree
-	new_root = node.PointNode(line.start)
-	new_root.left = node.TrapNode(left)
+    # Make a mini tree
+    new_root = node.PointNode(line.start)
+    new_root.add_left(node.TrapNode(left))
 
-	x = node.PointNode(line.end)
-	x.right = nodeTrapNode(right)
-	new_root.right = x
+    x = node.PointNode(line.end)
+    x.add_right(nodeTrapNode(right))
+    new_root.add_right(x)
 
-	y = node.LineNode(line)
-	y.left = node.TrapNode(top)
-	y.right = node.TrapNode(bottom)
-	x.left = y
+    y = node.LineNode(line)
+    y.add_left(node.TrapNode(top))
+    y.add_right(node.TrapNode(bottom))
+    x.add_left(y)
 
-	if root is pt1_node:
-		return new_root
-	else:
-		pt1_node.replace(new_root)
-		return root
+    if root is pt1_node:
+        return new_root
+    else:
+        pt1_node.replace(new_root)
+        return root
+
+def handle_many(root, pt1_node, pt2_node, line):
+    inbetween_traps = get_intersected_traps(root, line)
+
+    # Lefty boy
+    l_trap = inbetween_traps[0]
+
+    # Create sub trapezoids
+    left = trap.Trap(l_trap.top, l_trap.bottom, l_trap.left_pt, line.start)
+    bottom = trap.Trap(line, l_trap.bottom, line.start, l_trap.right_pt)
+    top = trap.Trap(l_trap.top, line, line.start, l_trap.right_pt)
+
+    # Set neighbors
+    left.set_neighbors(l_trap.topleft_n, top, l_trap.bottomleft_n, bottom)
+    bottom.set_neighbors(left, null, left, null)
+    top.set_neighbors(left, null, left, null)
+
+    # Neighbors of neighbors
+    if l_trap.topleft_n is not None:
+        l_trap.topleft_n.topright_n = left
+        l_trap.topleft_n.bottomright_n = left
+
+    if l_trap.bottomleft_n is not None:
+        l_trap.bottomleft_n.topright_n = left
+        l_trap.bottomleft_n.bottomright_n = left
+
+    # Set up subtree
+    new_left = node.PointNode(line.start)
+    new_split = node.LineNode(line)
+    new_left.add_left(node.TrapNode(left))
+    new_left.add_right(new_split)
+    new_split.add_left(top)
+    new_split.add_right(bottom)
+
+    # Use a tangled web of references to replace this trapezoid with the subtree
+    l_trap.gnode.replace(new_left)
+
+    for i in range(1, len(inbetween_traps) - 1):
+        curr_trap = inbetween_traps[i]
+
+
+
+
+def get_intersected_traps(root, line):
+    traps = []
+
+    s = line.start
+    e = line.end
+
+    start = root.locate_point(s).trap
+    traps.append(start)
+    curr = start
+
+    while curr is not None and (curr.right_pt is not None and e.end.x >= curr.right_pt.x):
+        if line.above(curr.right_pt):
+            curr = curr.bottomright_n
+        else:
+            curr = curr.topright_n
+        if curr is not None:
+            traps.append(curr)
+
+    return traps
 
 
 # Run the main function
