@@ -8,30 +8,35 @@ __author__ = "Ray Dodds, Jonathan Schenk"
 import line, trap
 
 class Node(object):
-	def __init__(self, parent, left=None, right=None):
-        self.parent = []
-		self.parent.append(parent)
+	def __init__(self, parent=None, left=None, right=None):
+		self.parent = []
+		if(parent is not None):
+			self.parent.append(parent)
 		self.left = left
 		self.right = right
 
-	def replace(replacement):
-		for p in parent:
+	def replace(self, replacement):
+		for p in self.parent:
 			if p.left is self:
 				p.left = replacement
 			elif p.right is self:
 				p.right = replacement
 
-    def add_left(node):
-        self.left = node
-        node.parent.append(self)
+	def add_left(self, node):
+		self.left = node
+		node.parent.append(self)
 
-    def add_right(node):
-        self.right = node
-        node.parent.append(self)
+	def add_right(self, node):
+		self.right = node
+		node.parent.append(self)
 
 class PointNode(Node):
-	def __init__(self, parent, point, left=None, right=None):
-		self = Node(parent, left, right)
+	def __init__(self, point, parent=None, left=None, right=None):
+		self.parent = []
+		if(parent is not None):
+			self.parent.append(parent)
+		self.left = left
+		self.right = right
 		self.point = point
 
 	def next(self, p):
@@ -44,8 +49,12 @@ class PointNode(Node):
 
 
 class SegNode(Node):
-	def __init__(self, parent, line, left=None, right=None):
-		self = Node(parent, left, right)
+	def __init__(self, line, parent=None, left=None, right=None):
+		self.parent = []
+		if(parent is not None):
+			self.parent.append(parent)
+		self.left = left
+		self.right = right
 		self.line = line
 
 	def next(self, p):
@@ -57,7 +66,12 @@ class SegNode(Node):
 		return ret
 
 class TrapNode(Node):
-	def __init__(self, parent, trap):
-		self = Node(parent)
+	def __init__(self, trap, parent=None):
+		self.parent = []
+		if(parent is not None):
+			self.parent.append(parent)
 		self.trap = trap
-        self.trap.gnode = self
+		self.trap.gnode = self
+
+	def __repr__(self):
+		return str(self.__dict__)

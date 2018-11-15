@@ -18,12 +18,12 @@ class Trap:
 		self.bottomleft_n = None
 		self.bottomright_n = None
 
-        self.gnode = None
+		self.gnode = None
 
 		# (x,y)
 		self.left_pt = left_pt
 		self.right_pt = right_pt
-		if( left != None and Right != None ):
+		if( left_pt != None and right_pt != None ):
 			if( left_pt[0] > right_pt[0]):
 				self.left_pt = right_pt
 				self.right_pt = left_pt
@@ -51,7 +51,7 @@ class Trap:
 			if( tr != br ):
 				self.corners += [br]
 
-	def set_neighbors(tl,tr,bl,br):
+	def set_neighbors(self,tl,tr,bl,br):
 		self.topleft_n = tl
 		self.topright_n = tr
 		self.bottomleft_n = bl
