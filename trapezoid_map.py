@@ -39,6 +39,8 @@ def main():
 			lines += [new_line]
 	
 	painTree = trap_map(bbox, lines)
+
+	print(painTree)
 	
 
 def usage():
@@ -72,7 +74,6 @@ def add_line(root, line):
 
 #returns trapezoid the point is located in
 def locate_point(root, p):
-	print(root)
 	curr = root
 	while not isinstance(curr, node.TrapNode):
 		curr = curr.next(p)
@@ -163,6 +164,7 @@ def handle_many(root, pt1_node, pt2_node, line):
 	for i in range(1, len(inbetween_traps) - 1):
 		curr_trap = inbetween_traps[i]
 
+	return root
 
 
 
