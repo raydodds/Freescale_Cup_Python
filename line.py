@@ -64,4 +64,39 @@ class Line:
 	def above(self, p):
 		return self.det(p) > 0
 
+	#	COMPARATOR METHODS
+	def __eq__(self, other):
+		return (self.start == other.start) and (self.end == other.end)
+	
+	def __ne__(self, other):
+		return (self.start != other.start) or (self.end != other.end)
 
+	
+def tests():
+	pt0 = (0, 0)
+	pt2 = (1,1)
+	pt3 = (1,0)
+	pt1 = (0,1)
+
+	l0 = Line(pt0, pt2)
+	l2 = Line(pt1, pt3)
+	l1 = Line(pt0, pt2)
+
+	# Basic Comparators
+	assert l0 == l1
+	assert l0 != l2
+
+	# Intersections
+	assert l0.intersect(l1) is None
+	assert l0.intersect(l2) is not None
+
+	# __repr__
+	assert repr(l0) == repr(l1)
+	assert repr(l0) == '1.0*x+0.0'
+
+
+
+	
+
+if(__name__ == "__main__"):
+	tests()	

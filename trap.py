@@ -56,3 +56,6 @@ class Trap:
 		self.topright_n = tr
 		self.bottomleft_n = bl
 		self.bottomright_n = br
+
+	def __repr__(self):
+		return 'Trap('+str(self.corners)+')'

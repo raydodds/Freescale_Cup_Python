@@ -47,6 +47,12 @@ class PointNode(Node):
 			ret = self.right
 		return ret
 
+	def  __eq__(self, other):
+		return self.point == other.point
+
+	def __ne__(self, other):
+		return self.point != other.point
+
 
 class SegNode(Node):
 	def __init__(self, line, parent=None, left=None, right=None):
@@ -65,6 +71,15 @@ class SegNode(Node):
 			ret = self.right
 		return ret
 
+	def __eq__(self, other):
+		return self.line == other.line
+
+	def __ne__(self, other):
+		return self.line != other.line
+
+	def __repr__(self):
+		return 'SegNode('+str(line)+')'
+
 class TrapNode(Node):
 	def __init__(self, trap, parent=None):
 		self.parent = []
@@ -74,4 +89,4 @@ class TrapNode(Node):
 		self.trap.gnode = self
 
 	def __repr__(self):
-		return str(self.__dict__)
+		return 'TrapNode('+str(self.trap)+')'	
