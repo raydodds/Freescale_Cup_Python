@@ -46,7 +46,7 @@ class Trap:
 		if(right_pt is not None):
 			x = self.right_pt[0]
 			tr = (x, self.top.yAt(x))
-			br = (x, self.top.yAt(x))
+			br = (x, self.bottom.yAt(x))
 			self.corners += [tr]
 			if( tr != br ):
 				self.corners += [br]
@@ -59,3 +59,24 @@ class Trap:
 
 	def __repr__(self):
 		return 'Trap('+str(self.corners)+')'
+
+def tests():
+
+	pt0 = (0,0)
+	pt1 = (0,1)
+	pt2 = (1,1)
+	pt3 = (1,0)
+	pt4 = (0,2)
+	pt5 = (2,2)
+	pt6 = (2,0)
+
+	l0 = line.Line(pt0, pt3)
+	l1 = line.Line(pt1, pt2)
+
+	t0 = Trap(l1, l0, pt0, pt3)
+	print(l1, l0)
+	print(t0)
+	
+
+if( __name__ == '__main__' ):
+	tests()
