@@ -61,6 +61,8 @@ class Trap:
 		return 'Trap('+str(self.corners)+')'
 
 	def __eq__(self, other):
+		if(other == None):
+			return False
 		for corner in self.corners:
 			if(corner not in other.corners):
 				return False

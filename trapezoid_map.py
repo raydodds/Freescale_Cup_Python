@@ -9,6 +9,8 @@ __author__ = "Jonathan Schenk, Ray Dodds"
 import trap, node		#Libs for representation of the lines, trapezoids,
 import line as l				#and the tree.
 
+import traverse as t
+
 import sys					#For handling arguments
 
 def main():
@@ -40,7 +42,18 @@ def main():
 	
 	painTree = trap_map(bbox, lines)
 
-	print(painTree)
+	resmat = t.traverse(painTree, lines)
+
+	for mline in resmat:
+		for i in range(len(mline)):
+			if(i < len(mline)-1):
+				print(mline[i], end=',')
+			else:
+				print(mline[i])
+	
+
+
+
 	
 
 def usage():
@@ -55,12 +68,12 @@ def trap_map(bounding_box, lines):
 	root = node.TrapNode(t)
 
 
-	for line in lines:
-		root = add_line(root, line)
+	for i in range(len(lines)):
+		root = add_line(root, lines[i], i)
 
 	return root
 
-def add_line(root, line):
+def add_line(root, line, lindex):
 	pt1_node = locate_point(root, line.start)
 	pt2_node = locate_point(root, line.end)
 
@@ -68,9 +81,9 @@ def add_line(root, line):
 	pt2_trap = pt2_node.trap
 
 	if pt1_trap == pt2_trap:
-		return handle_one(root, pt1_node, line)
+		return handle_one(root, pt1_node, line, lindex)
 	else:
-		return handle_many(root, pt1_node, pt2_node, line)
+		return handle_many(root, pt1_node, pt2_node, line, lindex)
 
 #returns trapezoid the point is located in
 def locate_point(root, p):
@@ -79,7 +92,7 @@ def locate_point(root, p):
 		curr = curr.next(p)
 	return curr
 
-def handle_one(root, pt1_node, line):
+def handle_one(root, pt1_node, line, lindex):
 	t = pt1_node.trap
 
 	left = trap.Trap(t.top, t.bottom, t.left_pt, line.start)
@@ -115,14 +128,16 @@ def handle_one(root, pt1_node, line):
 			t.bottomright_n.bottomleft_n = right
 
 	# Make a mini tree
-	new_root = node.PointNode(line.start)
+
+
+	new_root = node.PointNode(line.start, lindex)
 	new_root.add_left(node.TrapNode(left))
 
-	x = node.PointNode(line.end)
+	x = node.PointNode(line.end, lindex)
 	x.add_right(node.TrapNode(right))
 	new_root.add_right(x)
 
-	y = node.SegNode(line)
+	y = node.SegNode(line, lindex)
 	y.add_left(node.TrapNode(top))
 	y.add_right(node.TrapNode(bottom))
 	x.add_left(y)
@@ -133,7 +148,7 @@ def handle_one(root, pt1_node, line):
 		pt1_node.replace(new_root)
 		return root
 
-def handle_many(root, pt1_node, pt2_node, line):
+def handle_many(root, pt1_node, pt2_node, line, lindex):
 	inbetween_traps = get_intersected_traps(root, line)
 
 	# Lefty boy
@@ -163,76 +178,76 @@ def handle_many(root, pt1_node, pt2_node, line):
  			l_trap.bottomleft_n.bottomright_n = left
 
 	# Set up subtree
-	new_left = node.PointNode(line.start)
-	new_split = node.SegNode(line)
+	new_left = node.PointNode(line.start, lindex)
+	new_split = node.SegNode(line, lindex)
 	new_left.add_left(node.TrapNode(left))
 	new_left.add_right(new_split)
-    top_node = node.TrapNode(continuous_top)
+	top_node = node.TrapNode(continuous_top)
 	new_split.add_left(top_node)
-    bottom_node = node.TrapNode(continuous_bottom)
+	bottom_node = node.TrapNode(continuous_bottom)
 	new_split.add_right(bottom_node)
 
 	# Use a tangled web of references to replace this trapezoid with the subtree
 	l_trap.gnode.replace(new_left)
 
-    curr_trap = None
-    pre_trap = None
+	curr_trap = None
+	pre_trap = None
 	for i in range(1, len(inbetween_traps) - 1):
 		curr_trap = inbetween_traps[i]
-        prev_trap = inbetween_traps[i-1]
-        pinch_top = False
+		prev_trap = inbetween_traps[i-1]
+		pinch_top = False
 
-        if prev_trap.bottomright_n is not None and prev_trap.topright_n is not None:
-            pinch_top = (prev_trap.bottomright_n == curr_trap)
-        elif curr_trap.bottomleft_n == prev_trap or curr_trap.topleft_n prev_trap:
-            pinch_top = (curr_trap.bottomleft_n == prev_trap)
+		if prev_trap.bottomright_n is not None and prev_trap.topright_n is not None:
+			pinch_top = (prev_trap.bottomright_n == curr_trap)
+		elif curr_trap.bottomleft_n == prev_trap or curr_trap.topleft_n == prev_trap:
+			pinch_top = (curr_trap.bottomleft_n == prev_trap)
 
-        if pinch_top:
-            continuous_top.right_pt = curr_trap.left_pt
-            old_top = continuous_top
-            continuous_top = trap.Trap(curr_trap.top, line,\
-                                curr_trap.left_pt, curr_trap.right_pt)
-            top_node = node.TrapNode(continuous_top)
+		if pinch_top:
+			continuous_top.right_pt = curr_trap.left_pt
+			old_top = continuous_top
+			continuous_top = trap.Trap(curr_trap.top, line,\
+								curr_trap.left_pt, curr_trap.right_pt)
+			top_node = node.TrapNode(continuous_top)
 
-            if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
-                old_top.set_neighbors(None, continuous_top, None, None)
-                continuous_top.set_neighbors(curr_trap.topleft_n, None, old_top, None)
-                curr_trap.topleft_n.topright_n = continuous_top
-                curr_trap.topleft_n.bottomright_n = None
-            else:
-                old_top.bottomright_n = continuous_top
-                old_top.topright_n = prev_trap.topright_n
-                prev_trap.topright_n.topleft_n = old_top
-                prev_trap.topright_n.bottomleft_n = None
-                continuous_top.set_neighbors(old_top, None, None, None)
+			if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
+				old_top.set_neighbors(None, continuous_top, None, None)
+				continuous_top.set_neighbors(curr_trap.topleft_n, None, old_top, None)
+				curr_trap.topleft_n.topright_n = continuous_top
+				curr_trap.topleft_n.bottomright_n = None
+			else:
+				old_top.bottomright_n = continuous_top
+				old_top.topright_n = prev_trap.topright_n
+				prev_trap.topright_n.topleft_n = old_top
+				prev_trap.topright_n.bottomleft_n = None
+				continuous_top.set_neighbors(old_top, None, None, None)
 
-        else:
-            continuous_bottom.right_pt = curr_trap.left_pt
-            old_bottom = continuous_bottom
-            continuous_bottom = trap.Trap(line, curr_trap.bottom,\
-                                curr_trap.left_pt, curr_trap.right_pt)
-            bottom_node = node.TrapNode(continuous_bottom)
+		else:
+			continuous_bottom.right_pt = curr_trap.left_pt
+			old_bottom = continuous_bottom
+			continuous_bottom = trap.Trap(line, curr_trap.bottom,\
+								curr_trap.left_pt, curr_trap.right_pt)
+			bottom_node = node.TrapNode(continuous_bottom)
 
-            if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
-                old_bottom.set_neighbors(None, continuous_bottom, None, None)
-                continuous_bottom.set_neighbors(old_bottom, None, curr_trap.bottomleft_n, None)
-                curr_trap.bottomleft_n.topright_n = continuous_bottom
-                curr_trap.bottomleft_n.bottomright_n = None
-            else:
-                old_bottom.topright_n = continuous_bottom
-                old_bottom.bottomright_n = prev_trap.bottomright_n
-                prev_trap.bottomright_n.topleft_n = old_bottom
-                prev_trap.bottomright_n.bottomleft_n = None
-                continuous_bottom.set_neighbors(old_bottom, None, None, None)
+			if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
+				old_bottom.set_neighbors(None, continuous_bottom, None, None)
+				continuous_bottom.set_neighbors(old_bottom, None, curr_trap.bottomleft_n, None)
+				curr_trap.bottomleft_n.topright_n = continuous_bottom
+				curr_trap.bottomleft_n.bottomright_n = None
+			else:
+				old_bottom.topright_n = continuous_bottom
+				old_bottom.bottomright_n = prev_trap.bottomright_n
+				prev_trap.bottomright_n.topleft_n = old_bottom
+				prev_trap.bottomright_n.bottomleft_n = None
+				continuous_bottom.set_neighbors(old_bottom, None, None, None)
 
-        new_split = node.LineNode(line)
-        new_split.add_left(top_node)
-        new_split.right(bottom_node)
-        curr_trap.gnode.replace(new_split)
+		new_split = node.SegNode(line, lindex)
+		new_split.add_left(top_node)
+		new_split.add_right(bottom_node)
+		curr_trap.gnode.replace(new_split)
 
-    r_trap = inbetween_traps[-1]
-    continuous_top.right_pt = line.end
-    continuous_bottom.right_pt = line.end
+	r_trap = inbetween_traps[-1]
+	continuous_top.right_pt = line.end
+	continuous_bottom.right_pt = line.end
 	right = trap.Trap(r_trap.top, r_trap.bottom, line.end, r_trap.right_pt)
 
 	# Set neighbors
@@ -254,11 +269,11 @@ def handle_many(root, pt1_node, pt2_node, line):
  			r_trap.bottomright_n.bottomleft_n = right
 
 	# Set up subtree
-	new_right = node.PointNode(line.end)
-	new_split = node.SegNode(line)
-    top_node = node.TrapNode(continuous_top)
+	new_right = node.PointNode(line.end, lindex)
+	new_split = node.SegNode(line, lindex)
+	top_node = node.TrapNode(continuous_top)
 	new_split.add_left(top_node)
-    bottom_node = node.TrapNode(continuous_bottom)
+	bottom_node = node.TrapNode(continuous_bottom)
 	new_split.add_right(bottom_node)
 	new_right.add_left(new_split)
 	new_right.add_right(node.TrapNode(right))

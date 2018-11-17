@@ -76,7 +76,9 @@ def traverse(root, lines):
 
 	trav(root)
 
-	return pnodes, p, qnodes, q, snodes, s, traps
+
+
+	return bigSadMatrixBuilder( pnodes, p, qnodes, q, snodes, s, traps )
 
 	
 
@@ -266,7 +268,7 @@ def test():
 
 	print("Done assembling graph")
 
-	pnodes, p, qnodes, q, snodes, s, traps = traverse(p0, lines)
+	big_sad_matrix = traverse(p0, lines)
 	"""
 	print("\nPNODES")
 	for i in range(len(lines)):
@@ -288,8 +290,6 @@ def test():
 	for i in range(len(traps)):
 		print(i, traps[i])
 	"""
-	big_sad_matrix = bigSadMatrixBuilder(pnodes, p, qnodes, q, snodes, s, traps)
-
 	for mline in big_sad_matrix:
 		for i in range(len(mline)):
 			if(i < len(mline)-1):
