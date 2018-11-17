@@ -89,6 +89,7 @@ class TrapNode(Node):
 			self.parent.append(parent)
 		self.trap = trap
 		self.trap.gnode = self
+		self.tindex = -1
 
 	def __repr__(self):
 		return 'TrapNode('+str(self.trap)+')'	
