@@ -84,14 +84,19 @@ def tests():
 
 	l0 = line.Line(pt0, pt3)
 	l1 = line.Line(pt1, pt2)
-
-	t0 = Trap(l1, l0, pt0, pt3)
-	
 	l2 = line.Line(pt4, pt5)
-
+	l3 = line.Line(pt0, pt2)
+	
+	t0 = Trap(l1, l0, pt0, pt3)
 	t1 = Trap(l2, l0, pt0, pt5)
+	t2 = Trap(l0, l1, pt3, pt0)
+	t3 = Trap(l3, l0, pt0, pt3)
 
+	# Check comparators
 	assert t0 != t1
+	assert t0 == t2
+	assert len(t0.corners) == 4
+	assert len(t3.corners) == 3
 
 if( __name__ == '__main__' ):
 	tests()

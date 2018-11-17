@@ -30,6 +30,12 @@ class Node(object):
 		self.right = node
 		node.parent.append(self)
 
+	def __eq__(self, other):
+		return type(self) == type(other) and self == other
+
+	def __ne__(self, other):
+		return type(self) != type(other) or (type(self) == type(other) and self != other)
+
 class PointNode(Node):
 	def __init__(self, point, lindex, parent=None, left=None, right=None):
 		self.parent = []
@@ -49,10 +55,13 @@ class PointNode(Node):
 		return ret
 
 	def  __eq__(self, other):
-		return self.point == other.point
+		return (type(self) == type(other)) and (self.point == other.point)
 
 	def __ne__(self, other):
 		return self.point != other.point
+
+	def __repr__(self):
+		return "PointNode("+str(self.point)+', '+str(self.lindex)+')'
 
 
 class SegNode(Node):
@@ -74,13 +83,13 @@ class SegNode(Node):
 		return ret
 
 	def __eq__(self, other):
-		return self.line == other.line
+		return (type(self) == type(other)) and (self.line == other.line)
 
 	def __ne__(self, other):
 		return self.line != other.line
 
 	def __repr__(self):
-		return 'SegNode('+str(line)+')'
+		return 'SegNode('+str(self.line)+', '+str(self.lindex)+')'
 
 class TrapNode(Node):
 	def __init__(self, trap, parent=None):
@@ -91,5 +100,11 @@ class TrapNode(Node):
 		self.trap.gnode = self
 		self.tindex = -1
 
+	def __eq__(self, other):
+		return (type(self) == type(other)) and (self.trap == other.trap)
+
+	def __ne__(self, other):
+		return self.trap != other.trap
+
 	def __repr__(self):
-		return 'TrapNode('+str(self.trap)+')'	
+		return 'TrapNode('+str(self.trap)+', '+str(self.tindex)+')'	
