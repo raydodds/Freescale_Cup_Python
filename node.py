@@ -31,13 +31,14 @@ class Node(object):
 		node.parent.append(self)
 
 class PointNode(Node):
-	def __init__(self, point, parent=None, left=None, right=None):
+	def __init__(self, point, lindex, parent=None, left=None, right=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
 		self.left = left
 		self.right = right
 		self.point = point
+		self.lindex = lindex
 
 	def next(self, p):
 		ret = None
@@ -55,13 +56,14 @@ class PointNode(Node):
 
 
 class SegNode(Node):
-	def __init__(self, line, parent=None, left=None, right=None):
+	def __init__(self, line, lindex, parent=None, left=None, right=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
 		self.left = left
 		self.right = right
 		self.line = line
+		self.lindex = lindex
 
 	def next(self, p):
 		ret = None

@@ -60,6 +60,18 @@ class Trap:
 	def __repr__(self):
 		return 'Trap('+str(self.corners)+')'
 
+	def __eq__(self, other):
+		for corner in self.corners:
+			if(corner not in other.corners):
+				return False
+		for corner in other.corners:
+			if(corner not in self.corners):
+				return False
+		return True
+
+	def __ne__(self, other):
+		return not (self == other)
+
 def tests():
 
 	pt0 = (0,0)
@@ -74,9 +86,12 @@ def tests():
 	l1 = line.Line(pt1, pt2)
 
 	t0 = Trap(l1, l0, pt0, pt3)
-	print(l1, l0)
-	print(t0)
 	
+	l2 = line.Line(pt4, pt5)
+
+	t1 = Trap(l2, l0, pt0, pt5)
+
+	assert t0 != t1
 
 if( __name__ == '__main__' ):
 	tests()
