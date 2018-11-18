@@ -47,7 +47,7 @@ def main():
 	for mline in resmat:
 		for i in range(len(mline)):
 			if(i < len(mline)-1):
-				print(mline[i], end=',')
+				print(mline[i], end='\t')
 			else:
 				print(mline[i])
 	
