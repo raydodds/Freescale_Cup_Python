@@ -64,13 +64,10 @@ class Trap:
 	def __eq__(self, other):
 		if(other == None):
 			return False
-		for corner in self.corners:
-			if(corner not in other.corners):
-				return False
-		for corner in other.corners:
-			if(corner not in self.corners):
-				return False
-		return True
+		if(self.left_pt == other.left_pt and self.right_pt == other.right_pt\
+			and self.bottom == other.bottom and self.top == other.top):
+			return True
+		return False
 
 	def __ne__(self, other):
 		return not (self == other)

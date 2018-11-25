@@ -250,17 +250,21 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 
 	# Set up subtree
 	new_left = node.PointNode(line.start, lindex)
-	new_split = node.SegNode(line, lindex)
+	lnew_split = node.SegNode(line, lindex)
+	rnew_split = node.SegNode(line, lindex)
 	new_left.add_left(node.TrapNode(left))
-	new_left.add_right(new_split)
+	new_left.add_right(lnew_split)
 	top_node = node.TrapNode(continuous_top)
-	new_split.add_left(top_node)
+	lnew_split.add_left(top_node)
+	top_node.parent.append(rnew_split)
 	bottom_node = node.TrapNode(continuous_bottom)
-	new_split.add_right(bottom_node)
+	lnew_split.add_right(bottom_node)
+	bottom_node.parent.append(rnew_split)
 
 	# Use a tangled web of references to replace this trapezoid with the subtree
 	l_trap.gnode.replace(new_left)
 
+	mnew_split = node.SegNode(line, lindex)
 	curr_trap = None
 	prev_trap = None
 	for i in range(1, len(inbetween_traps)):
@@ -314,10 +318,10 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 		if(curr_trap == inbetween_traps[-1]):
 			break
 
-		new_split = node.SegNode(line, lindex)
-		new_split.add_left(top_node)
-		new_split.add_right(bottom_node)
-		curr_trap.gnode.replace(new_split)
+		mnew_split = node.SegNode(line, lindex)
+		mnew_split.add_left(top_node)
+		mnew_split.add_right(bottom_node)
+		curr_trap.gnode.replace(mnew_split)
 
 	r_trap = inbetween_traps[-1]
 	continuous_top.right_pt = line.end
@@ -344,12 +348,15 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 
 	# Set up subtree
 	new_right = node.PointNode(line.end, lindex)
-	new_split = node.SegNode(line, lindex)
 	top_node = node.TrapNode(continuous_top)
-	new_split.add_left(top_node)
+	rnew_split.add_left(top_node)
+	top_node.parent.append(lnew_split)
+	top_node.parent.append(mnew_split)
 	bottom_node = node.TrapNode(continuous_bottom)
-	new_split.add_right(bottom_node)
-	new_right.add_left(new_split)
+	rnew_split.add_right(bottom_node)
+	bottom_node.parent.append(lnew_split)
+	bottom_node.parent.append(mnew_split)
+	new_right.add_left(rnew_split)
 	new_right.add_right(node.TrapNode(right))
 
 	r_trap.gnode.replace(new_right)

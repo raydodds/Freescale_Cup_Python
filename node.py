@@ -17,9 +17,9 @@ class Node(object):
 
 	def replace(self, replacement):
 		for p in self.parent:
-			if p.left is self:
+			if p.left == self:
 				p.left = replacement
-			elif p.right is self:
+			elif p.right == self:
 				p.right = replacement
 
 	def add_left(self, node):
