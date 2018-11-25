@@ -80,8 +80,10 @@ def add_line(root, line, lindex):
 	pt1_trap = pt1_node.trap
 	pt2_trap = pt2_node.trap
 
-	if pt1_trap == pt2_trap:
+	if pt1_trap == pt2_trap or pt1_trap.right_pt == line.end:
 		return handle_one(root, pt1_node, line, lindex)
+	elif pt1_trap.left_pt == line.start:
+		return handle_one(root, pt2_node, line, lindex)
 	else:
 		return handle_many(root, pt1_node, pt2_node, line, lindex)
 
@@ -96,51 +98,119 @@ def handle_one(root, pt1_node, line, lindex):
 	t = pt1_node.trap
 
 	left = trap.Trap(t.top, t.bottom, t.left_pt, line.start)
+	#left.parent.append(t.parent)
 	right = trap.Trap(t.top, t.bottom, line.end, t.right_pt)
+	#right.parent.append(t.parent)
 	top = trap.Trap(t.top, line, line.start, line.end)
+	#top.parent.append(t.parent)
 	bottom = trap.Trap(line, t.bottom, line.start, line.end)
-
-	left.set_neighbors(left.topleft_n, top, left.bottomleft_n, bottom)
-	right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
-	top.set_neighbors(left, right, None, None)
-	bottom.set_neighbors(left, right, None, None)
-
-	# Set neighbors of neighbors. Might be incorrect.
-	if t.topleft_n is not None:
-		if t.topleft_n.topright_n == t:
-			t.topleft_n.topright_n = left
-		else:
-			t.topleft_n.bottomright_n = left
-	if t.bottomleft_n is not None:
-		if t.bottomleft_n.topright_n == t:
-			t.bottomleft_n.topright_n = left
-		else:
-			t.bottomleft_n.bottomright_n = left
-	if t.topright_n is not None:
-		if t.topright_n.topleft_n == t:
-			t.topright_n.topleft_n = right
-		else:
-			t.topright_n.bottomleft_n = right
-	if t.bottomright_n is not None:
-		if t.bottomright_n.topleft_n == t:
-			t.bottomright_n.topleft_n = right
-		else:
-			t.bottomright_n.bottomleft_n = right
-
-	# Make a mini tree
-
+	#bottom.parent.append(t.parent)
 
 	new_root = node.PointNode(line.start, lindex)
-	new_root.add_left(node.TrapNode(left))
-
 	x = node.PointNode(line.end, lindex)
-	x.add_right(node.TrapNode(right))
-	new_root.add_right(x)
-
 	y = node.SegNode(line, lindex)
-	y.add_left(node.TrapNode(top))
-	y.add_right(node.TrapNode(bottom))
-	x.add_left(y)
+
+	if(left.left_pt[0] == left.right_pt[0] and left.left_pt[1] == left.right_pt[1]):
+		right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
+		top.set_neighbors(t.topleft_n, right, None, None)
+		bottom.set_neighbors(t.topleft_n, right, None, None)
+
+		if t.topleft_n is not None:
+			if t.topleft_n.topright_n == t:
+				t.topleft_n.topright_n = top
+			else:
+				t.topleft_n.bottomright_n = bottom
+		if t.bottomleft_n is not None:
+			if t.bottomleft_n.topright_n == t:
+				t.bottomleft_n.topright_n = top
+			else:
+				t.bottomleft_n.bottomright_n = bottom
+		if t.topright_n is not None:
+			if t.topright_n.topleft_n == t:
+				t.topright_n.topleft_n = right
+			else:
+				t.topright_n.bottomleft_n = right
+		if t.bottomright_n is not None:
+			if t.bottomright_n.topleft_n == t:
+				t.bottomright_n.topleft_n = right
+			else:
+				t.bottomright_n.bottomleft_n = right
+		# Make a mini tree
+		new_root = x
+		new_root.add_right(node.TrapNode(right))
+
+		y.add_left(node.TrapNode(top))
+		y.add_right(node.TrapNode(bottom))
+		new_root.add_left(y)
+		
+	elif(right.left_pt[0] == right.right_pt[0] and right.left_pt[1] == right.right_pt[1]):
+		left.set_neighbors(left.topleft_n, top, left.bottomleft_n, bottom)
+		top.set_neighbors(left, t.topright_n, None, None)
+		bottom.set_neighbors(left, t.bottomright_n, None, None)
+
+		if t.topleft_n is not None:
+			if t.topleft_n.topright_n == t:
+				t.topleft_n.topright_n = left
+			else:
+				t.topleft_n.bottomright_n = left
+		if t.bottomleft_n is not None:
+			if t.bottomleft_n.topright_n == t:
+				t.bottomleft_n.topright_n = left
+			else:
+				t.bottomleft_n.bottomright_n = left
+		if t.topright_n is not None:
+			if t.topright_n.topleft_n == t:
+				t.topright_n.topleft_n = top
+			else:
+				t.topright_n.bottomleft_n = top
+		if t.bottomright_n is not None:
+			if t.bottomright_n.topleft_n == t:
+				t.bottomright_n.topleft_n = bottom
+			else:
+				t.bottomright_n.bottomleft_n = bottom
+		# Make a mini tree
+		new_root.add_left(node.TrapNode(left))
+
+		y.add_left(node.TrapNode(top))
+		y.add_right(node.TrapNode(bottom))
+		new_root.add_right(y)
+
+	else:
+		left.set_neighbors(left.topleft_n, top, left.bottomleft_n, bottom)
+		right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
+		top.set_neighbors(left, right, None, None)
+		bottom.set_neighbors(left, right, None, None)
+
+		# Set neighbors of neighbors. Might be incorrect.
+		if t.topleft_n is not None:
+			if t.topleft_n.topright_n == t:
+				t.topleft_n.topright_n = left
+			else:
+				t.topleft_n.bottomright_n = left
+		if t.bottomleft_n is not None:
+			if t.bottomleft_n.topright_n == t:
+				t.bottomleft_n.topright_n = left
+			else:
+				t.bottomleft_n.bottomright_n = left
+		if t.topright_n is not None:
+			if t.topright_n.topleft_n == t:
+				t.topright_n.topleft_n = right
+			else:
+				t.topright_n.bottomleft_n = right
+		if t.bottomright_n is not None:
+			if t.bottomright_n.topleft_n == t:
+				t.bottomright_n.topleft_n = right
+			else:
+				t.bottomright_n.bottomleft_n = right
+		# Make a mini tree
+		new_root.add_left(node.TrapNode(left))
+
+		x.add_right(node.TrapNode(right))
+		new_root.add_right(x)
+
+		y.add_left(node.TrapNode(top))
+		y.add_right(node.TrapNode(bottom))
+		x.add_left(y)
 
 	if root is pt1_node:
 		return new_root
@@ -150,6 +220,7 @@ def handle_one(root, pt1_node, line, lindex):
 
 def handle_many(root, pt1_node, pt2_node, line, lindex):
 	inbetween_traps = get_intersected_traps(root, line)
+	#print(inbetween_traps)
 
 	# Lefty boy
 	l_trap = inbetween_traps[0]
@@ -191,8 +262,8 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 	l_trap.gnode.replace(new_left)
 
 	curr_trap = None
-	pre_trap = None
-	for i in range(1, len(inbetween_traps) - 1):
+	prev_trap = None
+	for i in range(1, len(inbetween_traps)):
 		curr_trap = inbetween_traps[i]
 		prev_trap = inbetween_traps[i-1]
 		pinch_top = False
@@ -239,6 +310,9 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 				prev_trap.bottomright_n.topleft_n = old_bottom
 				prev_trap.bottomright_n.bottomleft_n = None
 				continuous_bottom.set_neighbors(old_bottom, None, None, None)
+
+		if(curr_trap == inbetween_traps[-1]):
+			break
 
 		new_split = node.SegNode(line, lindex)
 		new_split.add_left(top_node)

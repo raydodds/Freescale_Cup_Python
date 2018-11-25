@@ -58,6 +58,7 @@ class Trap:
 		self.bottomright_n = br
 
 	def __repr__(self):
+		return "Trap(("+str(self.left_pt[0])+","+str(self.left_pt[1])+"),("+str(self.right_pt[0])+","+str(self.right_pt[1])+"))"
 		return 'Trap('+str(self.corners)+')'
 
 	def __eq__(self, other):

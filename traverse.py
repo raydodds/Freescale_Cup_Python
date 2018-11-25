@@ -338,6 +338,7 @@ def bigSadMatrixBuilder(pnodes, p, qnodes, q, snodes, s, traps):
 		names += ['S'+str(i)]
 
 	for i in range(len(traps)):
+		print(traps[i])
 		names += ['T'+str(i)]
 
 	names += ['Sum']
