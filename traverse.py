@@ -76,7 +76,7 @@ def traverse(root, lines):
 
 	trav(root)
 
-
+	traps.sort(key=lambda x: int(x.name[1:]))
 
 	return bigSadMatrixBuilder( pnodes, p, qnodes, q, snodes, s, traps )
 
@@ -329,17 +329,26 @@ def bigSadMatrixBuilder(pnodes, p, qnodes, q, snodes, s, traps):
 	# Label the big sad matrix
 	names = []
 	for i in range(len(pnodes)):
-		names += ['P'+str(i)]
+		if(pnodes[i] is not None):
+			names += [pnodes[i].name]
+		else:
+			names += ['P'+str(i)]
 
 	for i in range(len(qnodes)):
-		names += ['Q'+str(i)]
+		if(qnodes[i] is not None):
+			names += [qnodes[i].name]
+		else:
+			names += ['Q'+str(i)]
 
 	for i in range(len(snodes)):
-		names += ['S'+str(i)]
+		if(snodes[i] is not None):
+			names += [snodes[i][0].name]
+		else:
+			names += ['S'+str(i)]
 
 	for i in range(len(traps)):
 		print(traps[i])
-		names += ['T'+str(i)]
+		names += [traps[i].name]
 
 	names += ['Sum']
 

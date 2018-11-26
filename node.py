@@ -8,12 +8,13 @@ __author__ = "Ray Dodds, Jonathan Schenk"
 import line, trap
 
 class Node(object):
-	def __init__(self, parent=None, left=None, right=None):
+	def __init__(self, parent=None, left=None, right=None, name=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
 		self.left = left
 		self.right = right
+		self.name = name
 
 	def replace(self, replacement):
 		for p in self.parent:
@@ -37,7 +38,7 @@ class Node(object):
 		return type(self) != type(other) or (type(self) == type(other) and self != other)
 
 class PointNode(Node):
-	def __init__(self, point, lindex, parent=None, left=None, right=None):
+	def __init__(self, point, lindex, parent=None, left=None, right=None, name=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
@@ -45,6 +46,7 @@ class PointNode(Node):
 		self.right = right
 		self.point = point
 		self.lindex = lindex
+		self.name = name
 
 	def next(self, p):
 		ret = None
@@ -65,7 +67,7 @@ class PointNode(Node):
 
 
 class SegNode(Node):
-	def __init__(self, line, lindex, parent=None, left=None, right=None):
+	def __init__(self, line, lindex, parent=None, left=None, right=None, name=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
@@ -73,6 +75,7 @@ class SegNode(Node):
 		self.right = right
 		self.line = line
 		self.lindex = lindex
+		self.name = name
 
 	def next(self, p):
 		ret = None
@@ -92,13 +95,14 @@ class SegNode(Node):
 		return 'SegNode('+str(self.line)+', '+str(self.lindex)+')'
 
 class TrapNode(Node):
-	def __init__(self, trap, parent=None):
+	def __init__(self, trap, parent=None, name=None):
 		self.parent = []
 		if(parent is not None):
 			self.parent.append(parent)
 		self.trap = trap
 		self.trap.gnode = self
 		self.tindex = -1
+		self.name = name
 
 	def __eq__(self, other):
 		return (type(self) == type(other)) and (self.trap == other.trap)

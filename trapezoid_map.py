@@ -13,7 +13,10 @@ import traverse as t
 
 import sys					#For handling arguments
 
+trapNum = 0
+
 def main():
+	global trapNum
 	
 	if( len( sys.argv ) != 2 ):
 		usage
@@ -44,12 +47,16 @@ def main():
 
 	resmat = t.traverse(painTree, lines)
 
+	o = open('results.txt', 'w+')
+
 	for mline in resmat:
 		for i in range(len(mline)):
 			if(i < len(mline)-1):
-				print(mline[i], end='\t')
+				o.write(str(mline[i])+'\t')
 			else:
-				print(mline[i])
+				o.write(str(mline[i])+'\n')
+
+	o.close()
 	
 
 
@@ -61,12 +68,14 @@ def usage():
 	exit()
 
 def trap_map(bounding_box, lines):
+	global trapNum
 	#MAKE BOUNDING BOX INTO 4 POINT FOR THE CORNERS
 	top = l.Line(bounding_box[0], bounding_box[1])
 	bottom = l.Line(bounding_box[2], bounding_box[3])
 	t = trap.Trap(top, bottom, bounding_box[0], bounding_box[2])
-	root = node.TrapNode(t)
-
+	root = node.TrapNode(t, name='T'+str(trapNum))
+	trapNum += 1
+		
 
 	for i in range(len(lines)):
 		root = add_line(root, lines[i], i)
@@ -95,6 +104,7 @@ def locate_point(root, p):
 	return curr
 
 def handle_one(root, pt1_node, line, lindex):
+	global trapNum
 	t = pt1_node.trap
 
 	left = trap.Trap(t.top, t.bottom, t.left_pt, line.start)
@@ -106,9 +116,9 @@ def handle_one(root, pt1_node, line, lindex):
 	bottom = trap.Trap(line, t.bottom, line.start, line.end)
 	#bottom.parent.append(t.parent)
 
-	new_root = node.PointNode(line.start, lindex)
-	x = node.PointNode(line.end, lindex)
-	y = node.SegNode(line, lindex)
+	new_root = node.PointNode(line.start, lindex, name='P'+str(lindex))
+	x = node.PointNode(line.end, lindex, name='Q'+str(lindex))
+	y = node.SegNode(line, lindex, name='S'+str(lindex))
 
 	if(left.left_pt[0] == left.right_pt[0] and left.left_pt[1] == left.right_pt[1]):
 		right.set_neighbors(top, right.topright_n, bottom, right.bottomright_n)
@@ -137,10 +147,12 @@ def handle_one(root, pt1_node, line, lindex):
 				t.bottomright_n.bottomleft_n = right
 		# Make a mini tree
 		new_root = x
-		new_root.add_right(node.TrapNode(right))
+		new_root.add_right(node.TrapNode(right, name='T'+str(trapNum)))
+		trapNum += 1
 
-		y.add_left(node.TrapNode(top))
-		y.add_right(node.TrapNode(bottom))
+		y.add_left(node.TrapNode(top, name='T'+str(trapNum)))
+		trapNum += 1
+		y.add_right(node.TrapNode(bottom, name='T'+str(trapNum)))
 		new_root.add_left(y)
 		
 	elif(right.left_pt[0] == right.right_pt[0] and right.left_pt[1] == right.right_pt[1]):
@@ -169,10 +181,12 @@ def handle_one(root, pt1_node, line, lindex):
 			else:
 				t.bottomright_n.bottomleft_n = bottom
 		# Make a mini tree
-		new_root.add_left(node.TrapNode(left))
+		new_root.add_left(node.TrapNode(left, name='T'+str(trapNum)))
+		trapNum += 1
 
-		y.add_left(node.TrapNode(top))
-		y.add_right(node.TrapNode(bottom))
+		y.add_left(node.TrapNode(top, name='T'+str(trapNum)))
+		trapNum += 1
+		y.add_right(node.TrapNode(bottom, name='T'+str(trapNum)))
 		new_root.add_right(y)
 
 	else:
@@ -203,13 +217,17 @@ def handle_one(root, pt1_node, line, lindex):
 			else:
 				t.bottomright_n.bottomleft_n = right
 		# Make a mini tree
-		new_root.add_left(node.TrapNode(left))
+		new_root.add_left(node.TrapNode(left, name='T'+str(trapNum)))
+		trapNum += 1
 
-		x.add_right(node.TrapNode(right))
+		x.add_right(node.TrapNode(right, name='T'+str(trapNum)))
+		trapNum += 1
 		new_root.add_right(x)
 
-		y.add_left(node.TrapNode(top))
-		y.add_right(node.TrapNode(bottom))
+		y.add_left(node.TrapNode(top, name='T'+str(trapNum)))
+		trapNum += 1
+		y.add_right(node.TrapNode(bottom, name='T'+str(trapNum)))
+		trapNum += 1
 		x.add_left(y)
 
 	if root is pt1_node:
@@ -219,6 +237,7 @@ def handle_one(root, pt1_node, line, lindex):
 		return root
 
 def handle_many(root, pt1_node, pt2_node, line, lindex):
+	global trapNum
 	inbetween_traps = get_intersected_traps(root, line)
 	#print(inbetween_traps)
 
@@ -249,22 +268,25 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
  			l_trap.bottomleft_n.bottomright_n = left
 
 	# Set up subtree
-	new_left = node.PointNode(line.start, lindex)
-	lnew_split = node.SegNode(line, lindex)
-	rnew_split = node.SegNode(line, lindex)
-	new_left.add_left(node.TrapNode(left))
+	new_left = node.PointNode(line.start, lindex, name='P'+str(lindex))
+	lnew_split = node.SegNode(line, lindex, name='S'+str(lindex))
+	rnew_split = node.SegNode(line, lindex, name='S'+str(lindex))
+	new_left.add_left(node.TrapNode(left, name='T'+str(trapNum)))
+	trapNum += 1
 	new_left.add_right(lnew_split)
-	top_node = node.TrapNode(continuous_top)
+	top_node = node.TrapNode(continuous_top, name='T'+str(trapNum))
+	trapNum += 1
 	lnew_split.add_left(top_node)
 	top_node.parent.append(rnew_split)
-	bottom_node = node.TrapNode(continuous_bottom)
+	bottom_node = node.TrapNode(continuous_bottom, name='T'+str(trapNum))
+	trapNum += 1
 	lnew_split.add_right(bottom_node)
 	bottom_node.parent.append(rnew_split)
 
 	# Use a tangled web of references to replace this trapezoid with the subtree
 	l_trap.gnode.replace(new_left)
 
-	mnew_split = node.SegNode(line, lindex)
+	mnew_split = node.SegNode(line, lindex, name='S'+str(lindex))
 	curr_trap = None
 	prev_trap = None
 	for i in range(1, len(inbetween_traps)):
@@ -282,7 +304,8 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 			old_top = continuous_top
 			continuous_top = trap.Trap(curr_trap.top, line,\
 								curr_trap.left_pt, curr_trap.right_pt)
-			top_node = node.TrapNode(continuous_top)
+			top_node = node.TrapNode(continuous_top, name='T'+str(trapNum))
+			trapNum += 1
 
 			if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
 				old_top.set_neighbors(None, continuous_top, None, None)
@@ -301,7 +324,8 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 			old_bottom = continuous_bottom
 			continuous_bottom = trap.Trap(line, curr_trap.bottom,\
 								curr_trap.left_pt, curr_trap.right_pt)
-			bottom_node = node.TrapNode(continuous_bottom)
+			bottom_node = node.TrapNode(continuous_bottom, name='T'+str(trapNum))
+			trapNum += 1
 
 			if curr_trap.bottomleft_n is not None and curr_trap.topleft_n is not None:
 				old_bottom.set_neighbors(None, continuous_bottom, None, None)
@@ -347,17 +371,20 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
  			r_trap.bottomright_n.bottomleft_n = right
 
 	# Set up subtree
-	new_right = node.PointNode(line.end, lindex)
-	top_node = node.TrapNode(continuous_top)
+	new_right = node.PointNode(line.end, lindex, name='Q'+str(lindex))
+	top_node = node.TrapNode(continuous_top, name='T'+str(trapNum))
+	trapNum += 1
 	rnew_split.add_left(top_node)
 	top_node.parent.append(lnew_split)
 	top_node.parent.append(mnew_split)
-	bottom_node = node.TrapNode(continuous_bottom)
+	bottom_node = node.TrapNode(continuous_bottom, name='T'+str(trapNum))
+	trapNum += 1
 	rnew_split.add_right(bottom_node)
 	bottom_node.parent.append(lnew_split)
 	bottom_node.parent.append(mnew_split)
 	new_right.add_left(rnew_split)
-	new_right.add_right(node.TrapNode(right))
+	new_right.add_right(node.TrapNode(right, name='T'+str(trapNum)))
+	trapNum += 1
 
 	r_trap.gnode.replace(new_right)
 
