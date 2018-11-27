@@ -47,7 +47,7 @@ def main():
 
 	resmat = t.traverse(painTree, lines)
 
-	o = open('results.txt', 'w+')
+	o = open('results.tsv', 'w+')
 
 	for mline in resmat:
 		for i in range(len(mline)):
@@ -57,6 +57,25 @@ def main():
 				o.write(str(mline[i])+'\n')
 
 	o.close()
+	print("Results matrix saved to results.tsv.")
+
+	print("Find a point? <x> <y>")
+	while( True ):
+		
+		inline = input('pt> ').strip()
+
+		if(inline.lower() in ('', 'exit', 'q', 'stop')):
+			print("Finished.")
+			exit()
+		
+		x, y, *leftovers = [int(x) for x in inline.split()]
+
+		path = locate_route(painTree, (x,y))
+
+		print(path)
+
+
+
 	
 
 
@@ -102,6 +121,16 @@ def locate_point(root, p):
 	while not isinstance(curr, node.TrapNode):
 		curr = curr.next(p)
 	return curr
+
+#returns a string of names from the root to the pointed node
+def locate_route(root, p, path=''):
+	curr = root
+	while not isinstance(curr, node.TrapNode):
+		path += '->'+curr.name
+		curr = curr.next(p)
+	path += '->'+curr.name
+	return path 
+
 
 def handle_one(root, pt1_node, line, lindex):
 	global trapNum
@@ -153,6 +182,7 @@ def handle_one(root, pt1_node, line, lindex):
 		y.add_left(node.TrapNode(top, name='T'+str(trapNum)))
 		trapNum += 1
 		y.add_right(node.TrapNode(bottom, name='T'+str(trapNum)))
+		trapNum += 1
 		new_root.add_left(y)
 		
 	elif(right.left_pt[0] == right.right_pt[0] and right.left_pt[1] == right.right_pt[1]):
@@ -187,6 +217,7 @@ def handle_one(root, pt1_node, line, lindex):
 		y.add_left(node.TrapNode(top, name='T'+str(trapNum)))
 		trapNum += 1
 		y.add_right(node.TrapNode(bottom, name='T'+str(trapNum)))
+		trapNum += 1
 		new_root.add_right(y)
 
 	else:
@@ -342,7 +373,7 @@ def handle_many(root, pt1_node, pt2_node, line, lindex):
 		if(curr_trap == inbetween_traps[-1]):
 			break
 
-		mnew_split = node.SegNode(line, lindex)
+		mnew_split = node.SegNode(line, lindex, name='S'+str(lindex))
 		mnew_split.add_left(top_node)
 		mnew_split.add_right(bottom_node)
 		curr_trap.gnode.replace(mnew_split)
