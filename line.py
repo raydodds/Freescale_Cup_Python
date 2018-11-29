@@ -57,10 +57,12 @@ class Line:
 	def in_y(self, point):
 		return not ( self.start[1] > point[1] or self.end[1] < point[1] )
 
+	# Gets the determinant of two points on a line and a third point
 	def det(self, p):
 		return ((self.end[0] - self.start[0]) * (p[1] - self.start[1])\
 				- (self.end[1] - self.start[1]) * (p[0] - self.start[0]))
 
+	# Checks if a point is above a line
 	def above(self, p):
 		return self.det(p) > 0
 

@@ -13,11 +13,13 @@ import traverse as t
 
 import sys					#For handling arguments
 
+# Used for naming the trapezoids based on their order of creation
 trapNum = 0
 
 def main():
 	global trapNum
-	
+
+	# Handle args
 	if( len( sys.argv ) != 2 ):
 		usage
 
@@ -27,26 +29,31 @@ def main():
 		print("Could not find a file at "+sys.argv[1])
 		exit()
 
+	# Read in the file and make it into some lines
 	numLines = int(f.readline())
 
+	# Set up the bounding box
 	box = [int(x) for x in f.readline().strip().split()]
-
+	
 	bbox = [(box[1], box[0]), (box[2], box[1]), (box[3], box[2]), (box[0], box[3])]
 
 	lines = []
 
 	for fline in f:
-		if(len(fline) > 1):
+		if(len(fline) > 4):
 			s = [int(x) for x in fline.strip().split()]
 
 			new_line = l.Line((s[0], s[1]), (s[2], s[3]))
 
 			lines += [new_line]
-	
-	painTree = trap_map(bbox, lines)
 
+	# Make the trapezoids into a tree
+	painTree = trap_map(bbox, lines)
+	
+	# Generates the matrix from the tree.
 	resmat = t.traverse(painTree, lines)
 
+	# Save the results to a file
 	o = open('results.tsv', 'w+')
 
 	for mline in resmat:
@@ -59,6 +66,7 @@ def main():
 	o.close()
 	print("Results matrix saved to results.tsv.")
 
+	# Promptable point location
 	print("Find a point? <x> <y>")
 	while( True ):
 		

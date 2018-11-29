@@ -16,6 +16,7 @@ class Node(object):
 		self.right = right
 		self.name = name
 
+	# Replaces a node, fixes connections to parents and children
 	def replace(self, replacement):
 		for p in self.parent:
 			if p.left == self:
@@ -23,14 +24,17 @@ class Node(object):
 			elif p.right == self:
 				p.right = replacement
 
+	# Adds a node to the left of a node
 	def add_left(self, node):
 		self.left = node
 		node.parent.append(self)
 
+	# Adds a node to the right of a node
 	def add_right(self, node):
 		self.right = node
 		node.parent.append(self)
 
+	# Comparators
 	def __eq__(self, other):
 		return type(self) == type(other) and self == other
 
@@ -48,6 +52,7 @@ class PointNode(Node):
 		self.lindex = lindex
 		self.name = name
 
+	# Does point location
 	def next(self, p):
 		ret = None
 		if p[0] < self.point[0]:
@@ -56,6 +61,7 @@ class PointNode(Node):
 			ret = self.right
 		return ret
 
+	# Comparators
 	def  __eq__(self, other):
 		return (type(self) == type(other)) and (self.point == other.point)
 
@@ -77,6 +83,7 @@ class SegNode(Node):
 		self.lindex = lindex
 		self.name = name
 
+	# Does point location
 	def next(self, p):
 		ret = None
 		if self.line.above(p):
@@ -85,6 +92,7 @@ class SegNode(Node):
 			ret = self.right
 		return ret
 
+	# comparators
 	def __eq__(self, other):
 		return (type(self) == type(other)) and (self.line == other.line)
 
@@ -104,6 +112,7 @@ class TrapNode(Node):
 		self.tindex = -1
 		self.name = name
 
+	# Comparators
 	def __eq__(self, other):
 		return (type(self) == type(other)) and (self.trap == other.trap)
 

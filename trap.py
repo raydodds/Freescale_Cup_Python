@@ -51,6 +51,7 @@ class Trap:
 			if( tr != br ):
 				self.corners += [br]
 
+	# Keeps track of the neighbors of a trapezoid
 	def set_neighbors(self,tl,tr,bl,br):
 		self.topleft_n = tl
 		self.topright_n = tr
@@ -61,6 +62,7 @@ class Trap:
 		return "Trap(("+str(self.left_pt[0])+","+str(self.left_pt[1])+"),("+str(self.right_pt[0])+","+str(self.right_pt[1])+"))"
 		return 'Trap('+str(self.corners)+')'
 
+	# Comparators
 	def __eq__(self, other):
 		if(other == None):
 			return False
